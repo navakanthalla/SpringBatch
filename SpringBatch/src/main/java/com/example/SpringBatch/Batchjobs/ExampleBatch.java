@@ -24,33 +24,29 @@ public class ExampleBatch {
 	private JobBuilderFactory jobBuilderFactory;
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
-	
+
 	@Autowired
 	private ItemReaderImpl itemReaderImpl;
-	
+
 	@Autowired
 	private ItemWriterImpl itemWriterImpl;
 
 	@Bean
-	public Job job() {
-		return jobBuilderFactory.get("firstJob")
-				.incrementer(new RunIdIncrementer())
-				.start(secondStep())
-				.build();
+	Job firstJob(Step second) {
+		return jobBuilderFactory.get("firstJob").incrementer(new RunIdIncrementer()).start(secondStep()).build();
 
 	}
-	@StepScope
-	public Step secondStep()
-	{
-		return stepBuilderFactory.get("first chunk").<String,String>chunk(1)
-				.reader(itemReaderImpl)
-				.writer(itemWriterImpl)
-				.build();
+
+	@Bean
+//	@StepScope
+	public Step secondStep() {
+		return stepBuilderFactory.get("first chunk").<String, String>chunk(1).reader(itemReaderImpl)
+				.writer(itemWriterImpl).build();
 	}
+
 
 	public Step firstStep() {
-		return stepBuilderFactory.get("first Step").tasklet(firstTask()).
-				build();
+		return stepBuilderFactory.get("first Step").tasklet(firstTask()).build();
 	}
 
 	private Tasklet firstTask() { // TODO Auto-generated method stub return
