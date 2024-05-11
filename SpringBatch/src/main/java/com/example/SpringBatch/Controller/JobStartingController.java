@@ -11,9 +11,11 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,9 +26,13 @@ public class JobStartingController {
 	@Autowired
 	JobLauncher jobLauncher;
 	
-	//@Qualifier("firstJob")
+	@Qualifier("firstJob")
 	@Autowired
 	Job firstJob;
+	
+	@Qualifier("csvJob")
+	@Autowired
+	Job csvJob;
 	
 	@GetMapping("/firstJob")
 	public ResponseEntity<Object> startFirstJob() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException
@@ -40,4 +46,13 @@ public class JobStartingController {
 		return new ResponseEntity<Object>("job started",HttpStatus.CREATED);
 	}
 
+	@GetMapping("/csvJob")
+	public ResponseEntity<Object> startCsvJob() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException
+	{
+		HashMap<String, JobParameter> paramsHashMap=new HashMap<String, JobParameter>();
+		paramsHashMap.put("time",new JobParameter(System.currentTimeMillis()));
+		JobParameters jobParameters=new JobParameters(paramsHashMap);
+		jobLauncher.run(csvJob, jobParameters);
+		return new ResponseEntity<Object>("csv job started",HttpStatus.OK);
+	}
 }
